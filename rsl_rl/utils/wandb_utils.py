@@ -16,13 +16,8 @@ except ModuleNotFoundError:
 class WandbSummaryWriter(SummaryWriter):
     """Summary writer for Weights and Biases."""
 
-    def __init__(self, log_dir: str, flush_secs: int, cfg):
+    def __init__(self, log_dir: str, flush_secs: int, project_name):
         super().__init__(log_dir, flush_secs)
-
-        try:
-            project = cfg["wandb_project"]
-        except KeyError:
-            raise KeyError("Please specify wandb_project in the runner config, e.g. legged_gym.")
 
         try:
             entity = os.environ["WANDB_USERNAME"]
@@ -31,10 +26,10 @@ class WandbSummaryWriter(SummaryWriter):
                 "Wandb username not found. Please run or add to ~/.bashrc: export WANDB_USERNAME=YOUR_USERNAME"
             )
 
-        wandb.init(project=project, entity=entity)
+        wandb.init(project=project_name, entity=entity)
 
         # Change generated name to project-number format
-        wandb.run.name = project + "-" + wandb.run.name.split("-")[-1]
+        wandb.run.name = project_name + "-" + wandb.run.name.split("-")[-1]
 
         self.name_map = {
             "Train/mean_reward/time": "Train/mean_reward_time",

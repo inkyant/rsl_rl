@@ -80,11 +80,10 @@ class OnPolicyRunner:
 
         _, _ = self.env.reset()
     
-    def learn(self, num_learning_iterations, init_at_random_ep_len=False):
+    def learn(self, num_learning_iterations, init_at_random_ep_len=False, wandb_project="legged_gym"):
         
         # initialize writer
-        self.cfg["wandb_project"] = "b1_walk"
-        self.writer = WandbSummaryWriter(log_dir=self.log_dir, flush_secs=10, cfg=self.cfg)
+        self.writer = WandbSummaryWriter(log_dir=self.log_dir, flush_secs=10, project_name=wandb_project)
         # self.writer.log_config(self.env.cfg, self.cfg, self.alg_cfg, self.policy_cfg)
 
         if init_at_random_ep_len:
