@@ -83,8 +83,9 @@ class OnPolicyRunner:
     def learn(self, num_learning_iterations, init_at_random_ep_len=False, wandb_project="legged_gym"):
         
         # initialize writer
-        self.writer = WandbSummaryWriter(log_dir=self.log_dir, flush_secs=10, project_name=wandb_project)
-        # self.writer.log_config(self.env.cfg, self.cfg, self.alg_cfg, self.policy_cfg)
+        self.writer = WandbSummaryWriter(log_dir=(os.path.join(self.log_dir, 'wandb')), flush_secs=10, project_name=wandb_project)
+        
+        os.makedirs(os.path.join(self.log_dir, 'models'), exist_ok=True)
 
         if init_at_random_ep_len:
             self.env.episode_length_buf = torch.randint_like(self.env.episode_length_buf, high=int(self.env.max_episode_length))
@@ -137,12 +138,12 @@ class OnPolicyRunner:
             if self.log_dir is not None:
                 self.log(locals())
             if it % self.save_interval == 0:
-                os.makedirs(self.log_dir, exist_ok=True)
-                self.save(os.path.join(self.log_dir, 'model_{}.pt'.format(it)))
+                self.save(os.path.join(self.log_dir, 'models', 'model_{}.pt'.format(it)))
             ep_infos.clear()
         
         self.current_learning_iteration += num_learning_iterations
-        self.save(os.path.join(self.log_dir, 'model_{}.pt'.format(self.current_learning_iteration)))
+        self.save(os.path.join(self.log_dir, 'models', 'model_{}.pt'.format(self.current_learning_iteration)))
+        self.save(os.path.join(self.log_dir, 'export', 'model_{}.pt'.format(self.current_learning_iteration)))
 
     def log(self, locs: dict, width: int = 80, pad: int = 35):
         self.tot_timesteps += self.num_steps_per_env * self.env.num_envs
